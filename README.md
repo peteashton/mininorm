@@ -10,7 +10,7 @@ the data, we expect that the representation of the less abundant DNAs in the sam
 subsequent assemblies of the data.
 
 ## Usage message
-`
+``
 usage: mininorm.py [-h] [-o OUTFILE] [-r rejects-file] [-w w] [-k k]
                    [-c coverage] [-s stats-file] [-n counts-file]
                    input-file
@@ -43,4 +43,4 @@ optional arguments:
   -n counts-file, --counts counts-file
                         filename to store counts of all the minimisers, which
                         will be very large
-`
+``

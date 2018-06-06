@@ -10,14 +10,29 @@ import argparse
 # Set up appropriate argument parsing
 
 parser = argparse.ArgumentParser(description="Digitally normalise long-read DNA sequence read files using k-mer minimisers")
-parser.add_argument("input-file", nargs=1, type=str, help="FASTQ file of long-read DNA sequences")
-parser.add_argument("-o", "--outfile", type=str, help="name of FASTQ file to store the downsampled reads (use '-' for stdout)", default="-")
-parser.add_argument("-r", "--reject", type=str, help="name of FASTQ file to store the reads rejected as liekly duplicate, if not specifed, rejected reads are not collected", default="", metavar="rejects-file")
-parser.add_argument("-w", "--window-size", type=int, help="window size (default=20)", default=20, metavar="w")
-parser.add_argument("-k", "--kmer-size", type=int, help="k-mer size (default=20)", default=20, metavar="k")
-parser.add_argument("-c", "--coverage-threshold", type=int, help="coverage threshold.  Median minimiser count above which a read will be discarded as a likely duplicate (default=20)", default=20, metavar="coverage")
-parser.add_argument("-s", "--stats", type=str, help="filename in which to place details of each sequences as it is analysed, if not specified, stats are not collected", default="", metavar="stats-file")
-parser.add_argument("-n", "--counts", type=str, help="filename to store counts of all the minimisers, which will be very large", default="", metavar="counts-file")
+parser.add_argument("inputfile", nargs=1, type=str, 
+                    help="FASTQ file of long-read DNA sequences")
+parser.add_argument("-o", "--outfile", type=str, 
+                    help="name of FASTQ file to store the downsampled reads (use '-' for stdout)", 
+                    default="-")
+parser.add_argument("-r", "--reject", type=str, 
+                    help="name of FASTQ file to store the reads rejected as liekly duplicate, if not specifed, rejected reads are not collected", 
+                    default="", metavar="rejects-file")
+parser.add_argument("-w", "--window-size", type=int, 
+                    help="window size (default=20)", 
+                    default=20, metavar="w")
+parser.add_argument("-k", "--kmer-size", type=int, 
+                    help="k-mer size (default=20)", 
+                    default=20, metavar="k")
+parser.add_argument("-c", "--coverage-threshold", type=int, 
+                    help="coverage threshold.  Median minimiser count above which a read will be discarded as a likely duplicate (default=20)", 
+                    default=20, metavar="coverage")
+parser.add_argument("-s", "--stats", type=str, 
+                    help="filename in which to place details of each sequences as it is analysed, if not specified, stats are not collected", 
+                    default="", metavar="stats-file")
+parser.add_argument("-n", "--counts", type=str, 
+                    help="filename to store counts of all the minimisers, which will be very large", 
+                    default="", metavar="counts-file")
 
 args = parser.parse_args()
 
@@ -42,7 +57,7 @@ if args.stats != "":
 counts_file = False
 if args.counts != "":
     counts_file = open(args.counts, 'w')
-    print("Count")
+    print("Count", file=counts_file)
 
 # Core parameters for window size, kmer size and threshold for coverage
 
@@ -55,7 +70,8 @@ num_seqs = 0
 minimiser_counts = Counter()
 last_minimisers = 0
 
-for read in FastqReader(args.input_file):
+input_file = args.inputfile[0]
+for read in FastqReader(input_file):
     num_seqs += 1
     seq = read.seq
     revcomp = read.reverse_complement()
@@ -90,7 +106,7 @@ for read in FastqReader(args.input_file):
 
 # Decide whether to accept or reject the read
 
-    if media_minimiser_count <= coverage_threshold:
+    if median_minimiser_count <= coverage_threshold:
         print(read.to_fastq(), file=outfile)
     else:
         if rejects_file:
@@ -113,7 +129,6 @@ stats_file.close()
 # Output the counts, if required
 
 if counts_file:
-    print("Count", file=counts_file)
     for minimiser, count in minimiser_counts.items():
         print(count, file=counts_file)
     counts_file.close()

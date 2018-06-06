@@ -10,6 +10,7 @@ the data, we expect that the representation of the less abundant DNAs in the sam
 subsequent assemblies of the data.
 
 ## Usage message
+
 ```
 usage: mininorm.py [-h] [-o OUTFILE] [-r rejects-file] [-w w] [-k k]
                    [-c coverage] [-s stats-file] [-n counts-file]
@@ -18,7 +19,7 @@ usage: mininorm.py [-h] [-o OUTFILE] [-r rejects-file] [-w w] [-k k]
 Digitally normalise long-read DNA sequence read files using k-mer minimisers
 
 positional arguments:
-  input-file            FASTQ file of long-read DNA sequences
+  inputfile            FASTQ file of long-read DNA sequences
 
 optional arguments:
   -h, --help            show this help message and exit

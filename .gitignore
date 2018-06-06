@@ -1,1 +1,3 @@
 *.fastq
+*.txt
+__pycache__

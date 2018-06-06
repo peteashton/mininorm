@@ -1,4 +1,4 @@
-#Mininorm - minimiser-based digital normalisation of large long-read DNA sequencing datasets
+# Mininorm - minimiser-based digital normalisation of large long-read DNA sequencing datasets
 
 k-mer based normalisation has been used to perform digital normalisation of large DNA sequence datasets.  
 khmer utilises a k-mer counting method to perform such normalisation in a single pass through a file of 

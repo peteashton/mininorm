@@ -14,20 +14,20 @@ usage: mininorm.py [-h] [-o OUTFILE] [-r rejects-file] [-w w] [-k k]
                    [-c coverage] [-s stats-file] [-n counts-file]
                    inputfile
 
-Digitally normalise long-read DNA sequence read files using k-mer minimisers
+Digitally normalise long-read DNA sequence files using k-mer minimisers
 
 positional arguments:
-  inputfile            FASTQ file of long-read DNA sequences
+  inputfile             FASTQ file of long-read DNA sequences
 
 optional arguments:
   -h, --help            show this help message and exit
   -o OUTFILE, --outfile OUTFILE
-                        name of FASTQ file to store the downsampled reads (use
-                        '-' for stdout)
+                        name of the FASTQ file to store the downsampled reads
+                        (use '-', or omit for stdout)
   -r rejects-file, --reject rejects-file
                         name of FASTQ file to store the reads rejected as
-                        liekly duplicate, if not specifed, rejected reads are
-                        not collected
+                        likely duplicates; if not specifed, rejected reads are
+                        discarded
   -w w, --window-size w
                         window size (default=20)
   -k k, --kmer-size k   k-mer size (default=20)

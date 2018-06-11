@@ -1,7 +1,7 @@
-""" Module to implement quit and simple handling of FASTQ sequences in FASTQ files (and possibly gzipped FASTQ files).  
+""" Module to implement quick and simple handling of DNA sequences in FASTQ files (and possibly gzipped FASTQ files).  
 Implements the classes FastqReader, FastqSeq and FastqFormatError (the last used just for raising exceptions for 
-invalid FASTQ file).  Format and error checking is minimal, and quality strings are not decoded, to maintain the 
-speed of the module.
+invalid FASTQ files).  Format and error checking is minimal, and quality strings are not decoded, to maintain 
+speed.
 """
 
 import gzip
@@ -109,7 +109,8 @@ class FastqSeq:
         return revcomp[::-1]
     
     def to_fastq(self):
-        """ Generates the text representation of the FASTQ sequence in a format that is suitable to be written to a FASTQ format text file
+        """ Generates the text representation of the FASTQ sequence in a format that is suitable to be 
+            written to a FASTQ format text file
         """
         out = "@" + self.id
         if self.description:
@@ -121,7 +122,8 @@ class FastqSeq:
         return out
 
     def to_fasta(self):
-        """ Generates the text representation of the FASTQ seqeunce in a format that can be written to a FASTA format file (which omits the quality information)
+        """ Generates the text representation of the FASTQ seqeunce in a format that can be written to a 
+            FASTA format file (which omits the quality information)
         """
         out = ">" + self.id
         if self.description:

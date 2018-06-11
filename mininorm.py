@@ -9,30 +9,45 @@ import argparse
 
 # Set up appropriate argument parsing
 
-parser = argparse.ArgumentParser(description="Digitally normalise long-read DNA sequence read files using k-mer minimisers")
-parser.add_argument("inputfile", nargs=1, type=str, 
+parser = argparse.ArgumentParser(description="Digitally normalise long-read DNA sequence files using k-mer minimisers")
+parser.add_argument("inputfile", 
+                    nargs=1, 
+                    type=str, 
                     help="FASTQ file of long-read DNA sequences")
-parser.add_argument("-o", "--outfile", type=str, 
-                    help="name of FASTQ file to store the downsampled reads (use '-' for stdout)", 
+parser.add_argument("-o", "--outfile", 
+                    type=str, 
+                    help="name of the FASTQ file to store the downsampled reads (use '-', or omit for stdout)", 
                     default="-")
-parser.add_argument("-r", "--reject", type=str, 
-                    help="name of FASTQ file to store the reads rejected as liekly duplicate, if not specifed, rejected reads are not collected", 
-                    default="", metavar="rejects-file")
-parser.add_argument("-w", "--window-size", type=int, 
+parser.add_argument("-r", "--reject", 
+                    type=str, 
+                    help="name of FASTQ file to store the reads rejected as likely duplicates; if not specifed, rejected reads are discarded", 
+                    default="", 
+                    metavar="rejects-file")
+parser.add_argument("-w", "--window-size", 
+                    type=int, 
                     help="window size (default=20)", 
-                    default=20, metavar="w")
-parser.add_argument("-k", "--kmer-size", type=int, 
+                    default=20, 
+                    metavar="w")
+parser.add_argument("-k", "--kmer-size", 
+                    type=int, 
                     help="k-mer size (default=20)", 
-                    default=20, metavar="k")
-parser.add_argument("-c", "--coverage-threshold", type=int, 
+                    default=20, 
+                    metavar="k")
+parser.add_argument("-c", "--coverage-threshold", 
+                    type=int, 
                     help="coverage threshold.  Median minimiser count above which a read will be discarded as a likely duplicate (default=20)", 
-                    default=20, metavar="coverage")
-parser.add_argument("-s", "--stats", type=str, 
+                    default=20, 
+                    metavar="coverage")
+parser.add_argument("-s", "--stats", 
+                    type=str, 
                     help="filename in which to place details of each sequences as it is analysed, if not specified, stats are not collected", 
-                    default="", metavar="stats-file")
-parser.add_argument("-n", "--counts", type=str, 
+                    default="", 
+                    metavar="stats-file")
+parser.add_argument("-n", "--counts", 
+                    type=str, 
                     help="filename to store counts of all the minimisers, which will be very large", 
-                    default="", metavar="counts-file")
+                    default="", 
+                    metavar="counts-file")
 
 args = parser.parse_args()
 

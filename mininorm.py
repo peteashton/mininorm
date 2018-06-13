@@ -3,6 +3,7 @@
 from collections import Counter
 from statistics import median
 from Fastq import FastqReader
+import xxhash
 
 import sys
 import argparse
@@ -96,8 +97,8 @@ for read in FastqReader(input_file):
 # of the RC kmers, so that each kmer and its reverse complement are in the corresponding elements of the
 # two lists
 
-    kmers = [seq[i:i+kmer_size] for i in range(len(seq)-kmer_size)]
-    rkmers = [revcomp[i:i+kmer_size] for i in range(len(revcomp)-kmer_size)]
+    kmers = [xxhash.xxh32(seq[i:i+kmer_size]).digest() for i in range(len(seq)-kmer_size)]
+    rkmers = [xxhash.xxh32(revcomp[i:i+kmer_size]).digest() for i in range(len(revcomp)-kmer_size)]
     rkmers.reverse()
 
 # For each window along the sequence, add the minimal kmer to the list of minimisers, regardless of

@@ -68,27 +68,25 @@ if args.reject != "":
 stats_file = False
 if args.stats != "":
     stats_file = open(args.stats, 'w')
-    print("Sequence length\tNum minimisers\tCumulative minimisers\tNew minimisers\tMedian minimiser count", file=stats_file)
+    print("Sequence length\tNum minimisers\tCumulative minimisers\tNew minimisers\tMedian minimiser count\tMinimiser counts", file=stats_file)
 
 counts_file = False
 if args.counts != "":
     counts_file = open(args.counts, 'w')
     print("Count", file=counts_file)
 
-# Core parameters for window size, kmer size and threshold for coverage
+# Core parameters for window size, kmer size and threshold for coverage
 
 window_size = args.window_size
 kmer_size = args.kmer_size
 coverage_threshold = args.coverage_threshold
 
-num_seqs = 0
 
 minimiser_counts = Counter()
 last_minimisers = 0
 
 input_file = args.inputfile[0]
 for read in FastqReader(input_file):
-    num_seqs += 1
     seq = read.seq
     revcomp = read.reverse_complement()
     minimisers = set()
@@ -97,13 +95,13 @@ for read in FastqReader(input_file):
 # of the RC kmers, so that each kmer and its reverse complement are in the corresponding elements of the
 # two lists
 
-    kmers = [xxhash.xxh32(seq[i:i+kmer_size]).digest() for i in range(len(seq)-kmer_size)]
-    rkmers = [xxhash.xxh32(revcomp[i:i+kmer_size]).digest() for i in range(len(revcomp)-kmer_size)]
+    kmers =  [xxhash.xxh64(seq[i:i+kmer_size]).digest() for i in range(len(seq)-kmer_size)]
+    rkmers = [xxhash.xxh64(revcomp[i:i+kmer_size]).digest() for i in range(len(revcomp)-kmer_size)]
     rkmers.reverse()
 
 # For each window along the sequence, add the minimal kmer to the list of minimisers, regardless of
 # whether it came from the forward or RC sequence. Note: profiling shows that almost half of the time
-# is spent in these calls to the "min" function, probably becase we do it so many times per sequence
+# is spent in this calls to the "min" function, probably becase we do it so many times per sequence
 
     for i in range(len(kmers) - window_size):
         minimisers.add(min(kmers[i:i+window_size] + rkmers[i:i+window_size]))
@@ -118,9 +116,10 @@ for read in FastqReader(input_file):
 
 # Calculate the median count for the minimisers from this sequence
 
-    median_minimiser_count = median([minimiser_counts[minimiser] for minimiser in minimisers])
+    min_counts = [minimiser_counts[minimiser] for minimiser in minimisers]
+    median_minimiser_count = median(min_counts)
 
-# Decide whether to accept or reject the read
+# Decide whether to accept or reject the read
 
     if median_minimiser_count <= coverage_threshold:
         print(read.to_fastq(), file=outfile)
@@ -128,16 +127,17 @@ for read in FastqReader(input_file):
         if rejects_file:
             print(read.to_fastq(), file=rejects_file)
 
-# Write the stats for this sequence out to the stats file
+# Write the stats for this sequence out to the stats file
 
     all_minimisers = len(minimiser_counts)
     if stats_file:
-        print("%d\t%d\t%d\t%d\t%d" % 
-            (len(seq), len(minimisers), all_minimisers, all_minimisers-last_minimisers, median_minimiser_count), 
+        min_counts = sorted(min_counts)
+        l = len(min_counts)
+        min_counts = str([min_counts[0], min_counts[l // 4], min_counts[l // 2], min_counts[3*l // 4], min_counts[-1]])
+        print("%d\t%d\t%d\t%d\t%d\t%s" % 
+            (len(seq), len(minimisers), all_minimisers, all_minimisers-last_minimisers, median_minimiser_count, min_counts), 
             file=stats_file)
     last_minimisers = all_minimisers
-    if stats_file and num_seqs % 1000 == 0:
-        stats_file.flush()
 
 outfile.close()
 stats_file.close()

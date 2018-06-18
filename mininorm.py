@@ -1,6 +1,6 @@
 #!/bin/env python3
 
-from collections import Counter
+from collections import Counter, deque
 from statistics import median
 from Fastq import FastqReader
 import xxhash
@@ -81,9 +81,10 @@ window_size = args.window_size
 kmer_size = args.kmer_size
 coverage_threshold = args.coverage_threshold
 
-
 minimiser_counts = Counter()
 last_minimisers = 0
+
+# Read through each sequence in the FASTQ file
 
 input_file = args.inputfile[0]
 for read in FastqReader(input_file):
@@ -93,18 +94,28 @@ for read in FastqReader(input_file):
 
 # Extract the (overlapping) kmers from the sequence and its reverse complement, and reverse the order
 # of the RC kmers, so that each kmer and its reverse complement are in the corresponding elements of the
-# two lists
+# two lists.  Note the 64-bit hash of each k-mer is stored, not the k-mer itelf, which put an upper bound 
+# on the amount of storage required, regardless of k.  These two dictionary comprehensions take up 41% of
+# of the cpu time for the the script, so might be worth optimising at some point (note: the calls to 
+# xxhash.xxh64.digest() are only a smaller proportion of this time.
 
     kmers =  [xxhash.xxh64(seq[i:i+kmer_size]).digest() for i in range(len(seq)-kmer_size)]
     rkmers = [xxhash.xxh64(revcomp[i:i+kmer_size]).digest() for i in range(len(revcomp)-kmer_size)]
     rkmers.reverse()
 
 # For each window along the sequence, add the minimal kmer to the list of minimisers, regardless of
-# whether it came from the forward or RC sequence. Note: profiling shows that almost half of the time
-# is spent in this calls to the "min" function, probably becase we do it so many times per sequence
+# whether it came from the forward or RC sequence. This uses the "ascending minina" algorithm to calculate 
+# minima of a sliding window across the sequence, which is O(num_kmers). deque is a list which is optimised 
+# for push/pop operations at both ends of the list
 
-    for i in range(len(kmers) - window_size):
-        minimisers.add(min(kmers[i:i+window_size] + rkmers[i:i+window_size]))
+    window = deque()
+    for i, kmer in enumerate(kmers):
+        while window and window[-1][0] >= kmer:
+            window.pop()
+        window.append((kmer, i))
+        while window[0][1] <= i-window_size:
+            window.popleft()
+        minimisers.add(min(kmers[window[0][1]], rkmers[window[0][1]]))
 
 # We could add end minimisers here, but these are really only required for strict end-to-end overlap detection, which is not 
 # what we are doing here...
